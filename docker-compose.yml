@@ -44,12 +44,6 @@ services:
       SPRING_PROFILES_ACTIVE:      ${SPRING_PROFILE:-docker}
     ports:
       - "8080:8080"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      start_period: 90s
-      retries: 3
     restart: unless-stopped
 
   frontend:
@@ -58,8 +52,7 @@ services:
       dockerfile: Dockerfile
     container_name: agilepro-frontend
     depends_on:
-      api:
-        condition: service_healthy
+      - api
     ports:
       - "80:80"
     restart: unless-stopped
