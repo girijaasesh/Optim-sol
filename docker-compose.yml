@@ -5,18 +5,13 @@ services:
     image: postgres:16-alpine
     container_name: agilepro-db
     environment:
-      POSTGRES_DB:       agilepro_db
-      POSTGRES_USER:     agilepro
+      POSTGRES_DB: agilepro_db
+      POSTGRES_USER: agilepro
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U agilepro -d agilepro_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     restart: unless-stopped
 
   api:
@@ -25,31 +20,24 @@ services:
       dockerfile: Dockerfile
     container_name: agilepro-api
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     environment:
-      SPRING_DATASOURCE_URL:       jdbc:postgresql://postgres:5432/agilepro_db
-      SPRING_DATASOURCE_USERNAME:  agilepro
-      SPRING_DATASOURCE_PASSWORD:  ${POSTGRES_PASSWORD:-changeme}
-      JWT_SECRET:                  ${JWT_SECRET:-dev-secret-change-in-production-must-be-256-bits}
-      GOOGLE_CLIENT_ID:            ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET:        ${GOOGLE_CLIENT_SECRET:-}
-      STRIPE_SECRET_KEY:           ${STRIPE_SECRET_KEY:-sk_test_placeholder}
-      STRIPE_WEBHOOK_SECRET:       ${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
-      MAIL_HOST:                   ${MAIL_HOST:-smtp.gmail.com}
-      MAIL_PORT:                   ${MAIL_PORT:-587}
-      MAIL_USERNAME:               ${MAIL_USERNAME:-}
-      MAIL_PASSWORD:               ${MAIL_PASSWORD:-}
-      APP_FRONTEND_URL:            ${FRONTEND_URL:-http://localhost:4200}
-      SPRING_PROFILES_ACTIVE:      ${SPRING_PROFILE:-docker}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/agilepro_db
+      SPRING_DATASOURCE_USERNAME: agilepro
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_placeholder}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      APP_FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4200}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-docker}
     ports:
       - "8080:8080"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      start_period: 90s
-      retries: 3
     restart: unless-stopped
 
   frontend:
@@ -58,8 +46,7 @@ services:
       dockerfile: Dockerfile
     container_name: agilepro-frontend
     depends_on:
-      api:
-        condition: service_healthy
+      - api
     ports:
       - "80:80"
     restart: unless-stopped
