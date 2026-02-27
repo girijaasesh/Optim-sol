@@ -1,0 +1,336 @@
+// src/app/features/auth/admin-login/admin-login.component.scss
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Syne:wght@400;600;700;800&display=swap');
+
+$void:       #060810;
+$deep:       #0c1020;
+$surface:    #111828;
+$surface2:   #162030;
+$edge:       rgba(255,255,255,0.07);
+$edge2:      rgba(255,255,255,0.12);
+$gold:       #e8b84b;
+$gold-dim:   rgba(232,184,75,0.15);
+$gold-glow:  rgba(232,184,75,0.3);
+$gold-soft:  #f5d580;
+$red:        #f04545;
+$red-dim:    rgba(240,69,69,0.12);
+$green:      #3ecf8e;
+$green-dim:  rgba(62,207,142,0.12);
+$text:       rgba(255,255,255,0.88);
+$text-mid:   rgba(255,255,255,0.45);
+$text-dim:   rgba(255,255,255,0.2);
+
+* { box-sizing: border-box; }
+
+.admin-shell {
+  min-height: 100vh; display: flex;
+  background: $void; color: $text;
+  font-family: 'Syne', sans-serif;
+  position: relative;
+}
+
+.scan-overlay {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(255,255,255,0.012) 2px, rgba(255,255,255,0.012) 4px
+  );
+  animation: scan 20s linear infinite;
+}
+@keyframes scan { from { background-position: 0 0; } to { background-position: 0 200px; } }
+
+// ─────────────────────────────────────────────
+// SIDE RAIL
+// ─────────────────────────────────────────────
+.side-rail {
+  width: 72px; background: $deep;
+  border-right: 1px solid $edge;
+  display: flex; flex-direction: column;
+  align-items: center; padding: 1.5rem 0;
+  gap: 0.5rem; flex-shrink: 0;
+  position: relative; z-index: 1;
+}
+
+.rail-logo {
+  width: 40px; height: 40px; background: $gold; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; color: $void;
+  box-shadow: 0 0 20px $gold-glow; margin-bottom: 1rem;
+}
+.rail-sep { width: 32px; height: 1px; background: $edge; margin: 0.5rem 0; }
+.rail-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: $text-dim; cursor: pointer; transition: all 0.15s;
+  &:hover { background: $surface; color: $text; }
+  &.active { background: $gold-dim; color: $gold; }
+}
+.rail-bottom { margin-top: auto; }
+
+// ─────────────────────────────────────────────
+// MAIN
+// ─────────────────────────────────────────────
+.main-area {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 5rem 2rem 2rem;
+  position: relative; z-index: 1;
+
+  &::before {
+    content: ''; position: fixed; inset: 0; z-index: 0;
+    opacity: 0.06;
+    background-image:
+      linear-gradient(rgba(232,184,75,0.4) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,184,75,0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+}
+
+// ─────────────────────────────────────────────
+// STATUS BAR
+// ─────────────────────────────────────────────
+.status-bar {
+  position: fixed; top: 0; left: 72px; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.75rem 2rem;
+  background: rgba(12,16,32,0.7); backdrop-filter: blur(10px);
+  border-bottom: 1px solid $edge; z-index: 50;
+}
+.status-items { display: flex; gap: 1.5rem; }
+.s-item {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: $text-dim;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  &.green { background: $green; box-shadow: 0 0 6px $green; animation: blink 2s ease-in-out infinite; }
+  &.amber { background: $gold; box-shadow: 0 0 6px $gold-glow; }
+  &.red   { background: $red; box-shadow: 0 0 6px rgba(240,69,69,0.4); }
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+.utc-clock { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: $text-dim; }
+
+// ─────────────────────────────────────────────
+// LOGIN WRAP
+// ─────────────────────────────────────────────
+.login-wrap { width: 100%; max-width: 440px; position: relative; z-index: 1; }
+
+.card-eyebrow {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: $gold;
+  letter-spacing: 0.12em; margin-bottom: 0.75rem;
+}
+.card-title {
+  font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: $text;
+  margin-bottom: 0.4rem; line-height: 1.1;
+  span { color: $gold; }
+}
+.card-desc {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: $text-mid;
+  margin-bottom: 2rem; line-height: 1.7;
+}
+
+// ─────────────────────────────────────────────
+// AUTH BOX
+// ─────────────────────────────────────────────
+.auth-box {
+  background: $surface; border: 1px solid $edge2;
+  border-radius: 16px; overflow: hidden; position: relative;
+  box-shadow: 0 0 0 1px rgba(232,184,75,0.05), 0 32px 80px rgba(0,0,0,0.6);
+  animation: boxIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes boxIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+// ─────────────────────────────────────────────
+// LOCKOUT OVERLAY
+// ─────────────────────────────────────────────
+.lockout {
+  position: absolute; inset: 0; border-radius: 16px;
+  background: rgba(6,8,16,0.96); backdrop-filter: blur(4px);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; padding: 2rem; z-index: 10;
+  animation: boxIn 0.3s ease;
+
+  .lock-icon  { font-size: 3rem; margin-bottom: 1rem; }
+  .lock-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: $red; margin-bottom: 0.5rem; }
+  .lock-desc  { font-family: 'IBM Plex Mono', monospace; font-size: 0.73rem; color: $text-mid; margin-bottom: 1rem; line-height: 1.7; max-width: 280px; }
+  .lock-timer { font-family: 'IBM Plex Mono', monospace; font-size: 2.5rem; font-weight: 700; color: $red; margin: 0.5rem 0 1rem; letter-spacing: 0.05em; }
+  .lock-progress { width: 200px; height: 3px; background: $edge; border-radius: 2px; overflow: hidden; margin-bottom: 1.5rem; }
+  .lock-bar { height: 100%; background: $red; border-radius: 2px; transition: width 1s linear; }
+}
+
+// ─────────────────────────────────────────────
+// BOX HEADER
+// ─────────────────────────────────────────────
+.box-header {
+  background: $deep; border-bottom: 1px solid $edge;
+  padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between;
+}
+.window-dots { display: flex; gap: 5px; .wd { width: 10px; height: 10px; border-radius: 50%; &.red{background:#f04545;} &.yellow{background:#f5a623;} &.green{background:#3ecf8e;} } }
+.header-path { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: $text-mid; }
+.step-label  { font-family: 'IBM Plex Mono', monospace; font-size: 0.67rem; color: $gold; }
+
+// ─────────────────────────────────────────────
+// BOX BODY
+// ─────────────────────────────────────────────
+.box-body { padding: 1.75rem; }
+
+.policy-box {
+  background: $deep; border: 1px solid rgba(232,184,75,0.15);
+  border-radius: 8px; padding: 0.9rem 1rem; margin-bottom: 1.25rem;
+  display: flex; gap: 10px; align-items: flex-start;
+  .policy-icon { color: $gold; font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+  .policy-text {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.69rem; color: $text-dim; line-height: 1.7;
+    strong { color: $gold-soft; font-weight: 600; }
+  }
+}
+
+.adm-alert {
+  border-radius: 8px; padding: 0.75rem 1rem;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; line-height: 1.6;
+  margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 8px;
+  animation: fadeIn 0.2s ease;
+
+  &.adm-alert-err  { background: $red-dim; color: #f9a8a8; border: 1px solid rgba(240,69,69,0.25); }
+  &.adm-alert-ok   { background: $green-dim; color: #6ee7b7; border: 1px solid rgba(62,207,142,0.25); }
+  &.adm-alert-warn { background: $gold-dim; color: $gold-soft; border: 1px solid rgba(232,184,75,0.25); }
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+
+.attempt-track {
+  margin-bottom: 1.25rem;
+  .attempt-meta {
+    display: flex; justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: $text-dim; margin-bottom: 6px;
+  }
+  .text-red { color: $red; }
+}
+.attempt-pips { display: flex; gap: 4px; }
+.pip { width: 12px; height: 4px; border-radius: 2px; background: $edge2; transition: background 0.3s; &.pip-used { background: $red; box-shadow: 0 0 4px rgba(240,69,69,0.5); } }
+
+.adm-group { margin-bottom: 1.2rem; }
+.adm-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: $text-mid;
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;
+  .req { color: $red; margin-left: 2px; }
+}
+.adm-label-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: $text-mid;
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px;
+  a { color: $gold; font-size: 0.65rem; text-transform: none; cursor: pointer; &:hover { text-decoration: underline; } }
+}
+
+.adm-input-wrap { position: relative; }
+.adm-input {
+  width: 100%; padding: 0.75rem 1rem; padding-right: 3rem;
+  background: $deep; border: 1px solid $edge2; border-radius: 8px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; color: $text;
+  outline: none; transition: all 0.2s; caret-color: $gold;
+  &::placeholder { color: $text-dim; }
+  &:focus { border-color: rgba(232,184,75,0.5); box-shadow: 0 0 0 3px rgba(232,184,75,0.08); }
+  &.adm-input-err { border-color: rgba(240,69,69,0.5); box-shadow: 0 0 0 3px rgba(240,69,69,0.08); }
+  &.adm-input-ok  { border-color: rgba(62,207,142,0.4); }
+}
+.backup-input { letter-spacing: 0.1em; text-transform: uppercase; }
+.adm-trail {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: $text-dim; font-size: 0.9rem; font-family: 'IBM Plex Mono', monospace;
+}
+.adm-note { font-family: 'IBM Plex Mono', monospace; font-size: 0.67rem; color: $text-dim; margin-top: 6px; }
+
+.adm-remember {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: $text-mid; cursor: pointer;
+  input { accent-color: $gold; width: 14px; height: 14px; cursor: pointer; }
+}
+
+.adm-submit {
+  width: 100%; padding: 0.85rem; border: none; border-radius: 8px;
+  background: $gold; color: $void;
+  font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 800;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
+  display: flex; align-items: center; justify-content: center;
+  &:hover { background: $gold-soft; transform: translateY(-1px); box-shadow: 0 8px 32px $gold-glow; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+}
+
+.adm-btn {
+  @extend .adm-submit;
+  width: auto; padding: 0.65rem 1.75rem;
+}
+
+.spinner {
+  width: 16px; height: 16px; display: inline-block;
+  border: 2px solid rgba(6,8,16,0.3); border-top-color: $void;
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ─────────────────────────────────────────────
+// MFA ZONE
+// ─────────────────────────────────────────────
+.mfa-zone {
+  background: $deep; border: 1px solid $edge2;
+  border-radius: 10px; padding: 1.5rem; text-align: center; margin-bottom: 1.25rem;
+  animation: boxIn 0.3s ease;
+
+  .mfa-icon  { font-size: 2rem; margin-bottom: 0.5rem; }
+  .mfa-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: $text; margin-bottom: 0.25rem; }
+  .mfa-sub   { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: $text-mid; margin-bottom: 1.25rem; }
+  .mfa-hint  { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: $text-dim; a { color: $gold; cursor: pointer; &:hover { text-decoration: underline; } } }
+}
+
+.totp-row { display: flex; gap: 6px; justify-content: center; margin-bottom: 1rem; }
+.totp-cell {
+  width: 44px; height: 50px; border: 1px solid $edge2; border-radius: 8px;
+  background: $surface2; text-align: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 1.3rem; font-weight: 700; color: $gold;
+  outline: none; caret-color: $gold; transition: all 0.15s;
+  &:focus { border-color: rgba(232,184,75,0.5); box-shadow: 0 0 0 2px rgba(232,184,75,0.1); }
+  &.filled { border-color: rgba(62,207,142,0.4); background: rgba(62,207,142,0.06); color: $green; }
+}
+.totp-note {
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: $text-dim;
+  text-align: center; margin-bottom: 1.25rem; line-height: 1.7;
+}
+
+// ─────────────────────────────────────────────
+// BOX FOOTER
+// ─────────────────────────────────────────────
+.box-footer {
+  border-top: 1px solid $edge; padding: 1rem 1.75rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: $deep;
+}
+.bf-left { font-family: 'IBM Plex Mono', monospace; font-size: 0.67rem; color: $text-dim; .ip-text { color: $gold; } }
+.bf-right { display: flex; gap: 1rem; a { font-family: 'IBM Plex Mono', monospace; font-size: 0.67rem; color: $text-dim; cursor: pointer; text-decoration: none; transition: color 0.15s; &:hover { color: $gold; } } }
+
+// ─────────────────────────────────────────────
+// BELOW CARD
+// ─────────────────────────────────────────────
+.audit-strip {
+  margin-top: 1.5rem; background: $deep; border: 1px solid $edge;
+  border-radius: 8px; padding: 0.75rem 1rem;
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.67rem; color: $text-dim; line-height: 1.7;
+  strong { color: $gold-soft; }
+}
+
+.user-portal-link {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 1.25rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: $text-dim;
+  a { color: $text-mid; text-decoration: none; transition: color 0.15s; &:hover { color: $gold; } }
+}
+
+.back-link { text-align: center; margin-top: 1rem; a { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: $text-mid; cursor: pointer; &:hover { color: $gold; } } }
+
+// ─────────────────────────────────────────────
+// RESPONSIVE
+// ─────────────────────────────────────────────
+@media (max-width: 640px) {
+  .side-rail   { display: none; }
+  .status-bar  { left: 0; }
+  .main-area   { padding: 4.5rem 1.5rem 2rem; }
+}

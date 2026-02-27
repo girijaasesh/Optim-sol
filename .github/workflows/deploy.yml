@@ -1,0 +1,124 @@
+name: Deploy to Hostinger VPS
+
+on:
+  push:
+    branches: [ main, production ]
+  workflow_dispatch:        # allow manual trigger from GitHub UI
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/agilepro
+
+jobs:
+  # ── Build & push Docker images to GitHub Container Registry ───────
+  build:
+    name: Build Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-api:latest
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+      - name: Build & push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:latest
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
+
+  # ── Deploy to Hostinger VPS ────────────────────────────────────────
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Option A: Use Hostinger's official GitHub Action (Docker Manager)
+      - name: Deploy via Hostinger Action
+        uses: hostinger/deploy-on-vps@v2
+        with:
+          api-key:            ${{ secrets.HOSTINGER_API_KEY }}
+          virtual-machine:    ${{ vars.HOSTINGER_VM_ID }}
+          project-name:       agilepro
+          docker-compose-path: docker-compose.prod.yml
+          environment-variables: |
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+            STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
+            MAIL_HOST=${{ secrets.MAIL_HOST }}
+            MAIL_PORT=${{ vars.MAIL_PORT }}
+            MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            FRONTEND_URL=${{ vars.FRONTEND_URL }}
+
+      # Option B: (Alternative) Direct SSH deploy — uncomment if not using Hostinger Action
+      # - name: Deploy via SSH
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host:     ${{ secrets.VPS_HOST }}
+      #     username: root
+      #     key:      ${{ secrets.VPS_SSH_KEY }}
+      #     script: |
+      #       cd /opt/agilepro
+      #       git pull origin main
+      #       docker compose -f docker-compose.prod.yml pull
+      #       docker compose -f docker-compose.prod.yml up -d --remove-orphans
+      #       docker image prune -f
+
+  # ── Post-deploy smoke test ─────────────────────────────────────────
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Wait for services to be ready
+        run: sleep 30
+
+      - name: Check API health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ vars.FRONTEND_URL }}/api/actuator/health)
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check failed — HTTP $STATUS"
+            exit 1
+          fi
+          echo "API healthy ✅"
+
+      - name: Check Frontend
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ vars.FRONTEND_URL }})
+          if [ "$STATUS" != "200" ]; then
+            echo "Frontend check failed — HTTP $STATUS"
+            exit 1
+          fi
+          echo "Frontend healthy ✅"

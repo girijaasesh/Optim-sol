@@ -1,0 +1,121 @@
+spring:
+  application:
+    name: agilepro-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/agilepro_db
+    username: ${DB_USERNAME:agilepro}
+    password: ${DB_PASSWORD:agilepro_pass}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: public
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
+            scope: openid,email,profile
+            redirect-uri: "{baseUrl}/api/auth/oauth2/callback/google"
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:noreply@agilepro.institute}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  error:
+    include-message: always
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:AgileProSuperSecretKey2026AgileProSuperSecretKey2026AgileProSuperSecretKey2026}
+  expiration-ms: 3600000        # 1 hour for users
+  admin-expiration-ms: 28800000 # 8 hours for admins
+  refresh-expiration-ms: 604800000 # 7 days
+
+# App config
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
+  admin-url: ${ADMIN_URL:http://localhost:4200/admin}
+  mfa:
+    issuer: AgilePro Institute
+    window: 1
+
+# Stripe
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:sk_test_placeholder}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+  currencies:
+    - USD
+    - AUD
+    - GBP
+    - CAD
+    - INR
+
+# Exchange Rates
+exchange-rates:
+  api-key: ${EXCHANGE_RATES_API_KEY:placeholder}
+  base-url: https://api.exchangeratesapi.io/v1
+
+# Certificate
+certificate:
+  template-path: ${CERT_TEMPLATE_PATH:/templates/certificates}
+  output-path: ${CERT_OUTPUT_PATH:/generated/certificates}
+
+# Logging
+logging:
+  level:
+    com.agilepro: DEBUG
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method

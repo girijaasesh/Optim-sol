@@ -1,0 +1,5 @@
+package com.agilepro.enums;
+public enum CertificationType {
+    SAFE_AGILIST, SAFE_SCRUM_MASTER, SAFE_ADVANCED_SCRUM_MASTER,
+    SAFE_POPM, SAFE_DEVOPS, SAFE_RTE, SAFE_SPC, CORPORATE_WORKSHOP
+}
