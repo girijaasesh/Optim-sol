@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install
 COPY . .
-RUN npx ng build --configuration=production 2>&1 || (cat /tmp/ng-error.log 2>/dev/null; exit 1)
+RUN npx ng build --configuration=production
 
 FROM nginx:alpine
 COPY --from=build /app/dist/agilepro-frontend/browser /usr/share/nginx/html
