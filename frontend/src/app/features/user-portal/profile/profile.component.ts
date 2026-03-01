@@ -63,14 +63,14 @@ import { AuthService } from '../../../core/services/auth.service';
           </div>
           <div class="form-group">
             <label class="form-label">Country</label>
-            <select formControlName="country" class="form-control" [attr.disabled]="!editing() ? '' : null">
+            <select formControlName="country" class="form-control" [class.field-readonly]="!editing()">
               <option value="">Select country</option>
               <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
             </select>
           </div>
           <div class="form-group">
             <label class="form-label">Preferred Currency</label>
-            <select formControlName="preferredCurrency" class="form-control" [attr.disabled]="!editing() ? '' : null">
+            <select formControlName="preferredCurrency" class="form-control" [class.field-readonly]="!editing()">
               <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }}</option>
             </select>
           </div>
@@ -112,7 +112,7 @@ import { AuthService } from '../../../core/services/auth.service';
 .alert { padding:0.75rem 1rem;border-radius:8px;font-size:0.82rem;margin-bottom:1rem; }
 .alert-ok { background:#f0fdf4;color:#166534;border:1px solid #bbf7d0; }
 .alert-err { background:#fef2f2;color:#991b1b;border:1px solid #fecaca; }
-.text-red { color:var(--red); }
+.text-red { color:var(--red); } .field-readonly { pointer-events:none; opacity:0.7; background:#f5f5f5; }
 @media(max-width:600px) { .profile-layout{grid-template-columns:1fr;} .form-grid{grid-template-columns:1fr;} }
 `]
 })
